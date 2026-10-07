@@ -1,0 +1,1141 @@
+<title>Upper Colorado Study Area</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Leaflet 1.9.4 stylesheet (inlined: the artifact CSP only loads scripts from the CDN) */
+/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	background-image: url(images/marker-icon.png);
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
+
+/* Layout: full-height app. Map fills the left; a reading panel on the right holds the
+   legend and the chronology table. Below 860px the panel stacks under the map. */
+:root {
+  --bg: #eef0ed;          /* page ground, a cool stone grey */
+  --panel: #fbfbf9;
+  --fg: #1f2622;
+  --muted: #5d6862;
+  --rule: #d5dad6;
+  --map-bg: #f7f6f2;      /* matches the faded terrain beyond the image edge */
+  --river: #2f7bbf;
+  --river-hi: #0f4f8a;
+  --storage: #7fc8d8;
+  --storage-edge: #0b5d73;
+  --tree: #2e6b30;
+  --best: #8fbf72;
+  --near: #d5e8c8;
+  --bar-off: #c9cfcb;
+  --focus: #0f4f8a;
+  --gauge: #00703c;   /* USGS green */
+  --font-display: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-data: "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131816; --panel: #1b211e; --fg: #e3e8e4; --muted: #9aa6a0; --rule: #2e3833;
+    --map-bg: #f7f6f2; --river: #2f7bbf; --river-hi: #0f4f8a;
+    --storage: #7fc8d8; --storage-edge: #0b5d73; --tree: #2e6b30;
+    --best: #6f9f55; --near: #34452c; --bar-off: #3a4540; --focus: #7db6ea;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131816; --panel: #1b211e; --fg: #e3e8e4; --muted: #9aa6a0; --rule: #2e3833;
+  --map-bg: #f7f6f2; --river: #2f7bbf; --river-hi: #0f4f8a;
+  --storage: #7fc8d8; --storage-edge: #0b5d73; --tree: #2e6b30;
+  --best: #6f9f55; --near: #34452c; --bar-off: #3a4540; --focus: #7db6ea;
+  color-scheme: dark;
+}
+
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.45;
+}
+.app { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 380px; }
+#map { min-height: 0; background: var(--map-bg); }
+.panel {
+  min-width: 0; overflow-y: auto; background: var(--panel); border-left: 1px solid var(--rule);
+  padding-inline: 20px; padding-block: 18px 28px; display: grid; gap: 22px; align-content: start;
+}
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: 62vh auto; height: auto; }
+  .panel { border-left: 0; border-top: 1px solid var(--rule); padding-inline: 16px; }
+}
+
+h1, h2 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; }
+h1 { font-size: 1.55rem; line-height: 1.15; letter-spacing: 0.005em; }
+h2 {
+  font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted);
+  font-weight: 500; padding-bottom: 6px; border-bottom: 1px solid var(--rule); margin-bottom: 10px;
+}
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 60ch; }
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size: 0.86em; }
+
+/* Legend */
+.legend { display: grid; gap: 12px; }
+.legend-row { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 10px; }
+.legend-row svg { display: block; }
+.legend-group { display: grid; gap: 6px; }
+.legend-caption { font-size: 0.8rem; color: var(--muted); }
+.ramp { height: 10px; border-radius: 2px; border: 1px solid var(--rule); }
+.ramp-ticks { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+
+/* Chronology table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: 0.76rem;
+     text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 6px 6px; border-bottom: 1px solid var(--rule); }
+td { padding: 6px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+tbody tr { cursor: pointer; }
+tbody tr:hover, tbody tr:focus-visible { background: color-mix(in srgb, var(--river) 10%, transparent); outline: none; }
+tbody tr:focus-visible td:first-child { box-shadow: inset 3px 0 0 var(--focus); }
+td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; border: 0; }
+.notes { font-size: 0.8rem; color: var(--muted); display: grid; gap: 8px; }
+.notes p { margin: 0; max-width: 62ch; }
+
+/* Map symbols */
+.site-icon { display: flex; align-items: flex-end; gap: 1px; }
+.site-icon svg { filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff); }
+.site-icon b {
+  font: 600 11px/1 var(--font-display); color: #1f3d20;
+  text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff;
+}
+.map-label {
+  font-family: var(--font-display); white-space: nowrap; pointer-events: none;
+  text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff;
+}
+.map-label.basin { font-weight: 600; font-size: 13px; color: #2b2f2c; letter-spacing: 0.06em; }
+.map-label.state { font-weight: 600; font-size: 17px; color: #a8aca9; letter-spacing: 0.1em; }
+.map-label.river { font-family: var(--font-body); font-style: italic; font-size: 11.5px; color: #1d4f80; }
+.leaflet-container { font-family: var(--font-body); background: var(--map-bg); }
+.leaflet-container :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Popups follow the page theme */
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: var(--panel); color: var(--fg); box-shadow: 0 3px 14px rgb(0 0 0 / 0.25);
+}
+.leaflet-popup-content-wrapper { border-radius: 6px; }
+.leaflet-popup-content { margin: 12px 14px; font-size: 14px; line-height: 1.4; width: auto !important; min-width: 220px; max-width: 290px; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--muted); }
+.pop-kind { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.pop-title { font-family: var(--font-display); font-weight: 600; font-size: 1.2rem; line-height: 1.15; margin: 2px 0 8px; }
+.pop dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 10px; margin: 0; }
+.pop dt { color: var(--muted); font-size: 0.82rem; }
+.pop dd { margin: 0; font-size: 0.88rem; }
+.pop .flag { font-size: 0.78rem; color: var(--muted); margin: 8px 0 0; }
+.pop .badge {
+  display: inline-block; font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 1px 6px; border-radius: 3px; border: 1px solid var(--storage-edge); color: var(--fg); margin-left: 4px;
+  vertical-align: 2px;
+}
+.bars { display: grid; gap: 3px; margin-top: 10px; }
+.bar { display: grid; grid-template-columns: 96px minmax(0, 1fr) 34px; align-items: center; gap: 6px; font-size: 0.8rem; }
+.bar .track { height: 8px; background: color-mix(in srgb, var(--bar-off) 45%, transparent); border-radius: 2px; position: relative; }
+.bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--bar-off); border-radius: 2px; }
+.bar.near .fill { background: var(--near); outline: 1px solid var(--best); }
+.bar.best .fill { background: var(--best); }
+.bar.best span:first-child { font-weight: 600; }
+.bar .num { text-align: right; }
+.load-error { padding: 24px; color: var(--fg); }
+.gauge-icon {
+  width: 13px; height: 13px; box-sizing: border-box; border-radius: 50%;
+  background: #fff; border: 2.5px solid var(--gauge); display: grid; place-items: center;
+}
+.gauge-icon::after { content: ""; width: 3px; height: 3px; border-radius: 50%; background: var(--gauge); }
+.spark { display: block; margin-top: 10px; overflow: visible; }
+.spark text { font-family: var(--font-data); font-size: 9.5px; fill: var(--muted); }
+.pop a { color: var(--river-hi); }
+@media (prefers-reduced-motion: reduce) { .leaflet-zoom-anim .leaflet-zoom-animated { transition: none !important; } }
+</style>
+
+<div class="app">
+  <div id="map" role="region" aria-label="Map of the Upper Colorado River Basin"></div>
+  <aside class="panel">
+    <header>
+      <h1>Upper Colorado River Basin above Lees Ferry</h1>
+      <p class="lede">Rivers are drawn in proportion to mean annual natural flow. Select a
+        natural-flow gauge, reservoir or tree-ring site for details.</p>
+    </header>
+
+    <section>
+      <h2>Legend</h2>
+      <div class="legend">
+        <div class="legend-group">
+          <div class="legend-caption">Mean natural flow, WY 1906–2020</div>
+          <div id="legend-flow"></div>
+        </div>
+        <div class="legend-group">
+          <div class="legend-caption">Reservoir storage capacity</div>
+          <div id="legend-storage"></div>
+        </div>
+        <div class="legend-group" id="legend-symbols"></div>
+        <div class="legend-group">
+          <div class="legend-caption">Elevation (m)</div>
+          <div class="ramp" id="legend-ramp"></div>
+          <div class="ramp-ticks"><span>1000</span><span>2000</span><span>3000</span><span>4000</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tree-ring chronologies</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Chronology</th><th>First year</th><th>r Total</th><th>Best subbasin</th></tr></thead>
+          <tbody id="site-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="notes" id="notes"></section>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function () {
+  const MINUS = '−';
+  const fmtYear = y => y == null ? '—' : String(y).replace('-', MINUS);
+  const fmtR = r => r == null ? '—' : r.toFixed(2);
+  const short = { 'Upper Green': 'Up. Green', 'Upper Colorado': 'Up. Colo.' };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const PT = 96 / 72;                        // CSS px per point
+
+  // Line width and circle size follow the printed map: width (pt) = 0.3 + 0.3 per MAF/yr;
+  // circle area (pt^2) = 30 x storage capacity (MAF)
+  const flowLw = maf => 0.3 + 0.3 * maf;
+  const storageRadiusPx = maf => Math.max(3, 0.5 * Math.sqrt(30 * maf) * PT);
+
+  const treeSvg = (size, color) =>
+    `<svg width="${size}" height="${Math.round(size * 1.15)}" viewBox="-1 -1.15 2 2.3" aria-hidden="true">
+       <path d="M0,-1 L-0.45,-0.35 L-0.2,-0.35 L-0.6,0.25 L-0.15,0.25 L-0.15,0.6 L0.15,0.6 L0.15,0.25 L0.6,0.25 L0.2,-0.35 L0.45,-0.35 Z"
+             fill="${color}" stroke="#fff" stroke-width="0.08"/></svg>`;
+
+  fetch('map_data.json').then(r => {
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }).then(build).catch(() => {
+    document.getElementById('map').innerHTML =
+      '<p class="load-error">The map data could not be loaded. Reload the page to try again.</p>';
+  });
+
+  function build(d) {
+    const css = getComputedStyle(document.documentElement);
+    const tok = name => css.getPropertyValue(name).trim();
+
+    const map = L.map('map', { zoomSnap: 0.25, minZoom: 5, maxZoom: 11, attributionControl: true });
+    map.attributionControl.setPrefix(false);
+    map.attributionControl.addAttribution('USGS 3DEP, NHDPlus V2, NLDI; Reclamation natural flows');
+    [['terrain', 200], ['basins', 410], ['rivers', 420], ['lakes', 430], ['storage', 440], ['labels', 450], ['gauges', 590], ['sites', 600]]
+      .forEach(([n, z]) => { map.createPane(n).style.zIndex = z; });
+    map.getPane('labels').style.pointerEvents = 'none';
+
+    L.imageOverlay('terrain.jpg', d.bounds, { pane: 'terrain', interactive: false }).addTo(map);
+    map.setMaxBounds(L.latLngBounds(d.bounds).pad(0.15));
+    const ll = c => c.map(([x, y]) => [y, x]);
+
+    // State lines and labels
+    Object.values(d.states).forEach(c =>
+      L.polyline(ll(c), { pane: 'basins', color: '#000', weight: 0.8, opacity: 0.25, interactive: false }).addTo(map));
+    [['UT', 39.5, -112.0], ['CO', 39.0, -105.6], ['WY', 42.3, -107.0], ['NM', 35.1, -107.6], ['AZ', 35.6, -111.6]]
+      .forEach(([t, lat, lon]) => L.marker([lat, lon], { pane: 'labels', interactive: false,
+        icon: L.divIcon({ className: 'map-label state', html: t, iconSize: null }) }).addTo(map));
+
+    // Basin outline and the Green / Colorado / San Juan divides
+    ['Green', 'Colorado', 'San Juan'].forEach(n =>
+      L.polyline(ll(d.basins[n]), { pane: 'basins', color: '#3a3f3c', weight: 1, dashArray: '5 3', interactive: false }).addTo(map));
+    L.polyline(ll(d.basins['Lees Ferry']), { pane: 'basins', color: '#1d211f', weight: 1.8, interactive: false }).addTo(map);
+    [['GREEN', 42.3, -109.0], ['COLORADO', 38.95, -106.6], ['SAN JUAN', 36.15, -107.75]]
+      .forEach(([t, lat, lon]) => L.marker([lat, lon], { pane: 'labels', interactive: false,
+        icon: L.divIcon({ className: 'map-label basin', html: t, iconSize: null }) }).addTo(map));
+
+    // Rivers: one polyline per reach of constant width; hovering names the river (a canvas
+    // hit tolerance makes the thin headwater lines easy to find)
+    const riverRenderer = L.canvas({ pane: 'rivers', tolerance: 6 });
+    const riverLayers = d.rivers.map(rv => {
+      const line = L.polyline(ll(rv.coords), {
+        renderer: riverRenderer, color: tok('--river'), weight: rv.lw * PT,
+        lineCap: 'round', lineJoin: 'round' });
+      line.bindTooltip(esc(rv.river), { sticky: true, direction: 'top', offset: [0, -6] });
+      line.on('mouseover', () => line.setStyle({ color: tok('--river-hi') }));
+      line.on('mouseout', () => line.setStyle({ color: tok('--river') }));
+      return line.addTo(map);
+    });
+    // Widen lines a little as the map zooms in so they keep their visual weight
+    let z0;
+    const restyleRivers = () => {
+      const k = Math.pow(2, (map.getZoom() - z0) * 0.45);
+      riverLayers.forEach((line, i) => line.setStyle({ weight: Math.max(0.9, d.rivers[i].lw * PT * k) }));
+    };
+
+    [['Green R.', 41.5, -110.3], ['Yampa R.', 40.7, -107.5], ['Colorado R.', 39.5, -107.0],
+     ['Gunnison R.', 38.42, -107.2], ['San Juan R.', 36.5, -108.5], ['Dolores R.', 38.2, -108.8],
+     ['White R.', 40.0, -109.0], ['Duchesne R.', 40.4, -110.6], ['Lake Powell', 37.35, -111.3]]
+      .forEach(([t, lat, lon]) => L.marker([lat, lon], { pane: 'labels', interactive: false,
+        icon: L.divIcon({ className: 'map-label river', html: t, iconSize: null }) }).addTo(map));
+
+    // Reservoirs: storage circles at the dams; lake outlines appear once zoomed in
+    const lakes = L.layerGroup(d.reservoirs.flatMap(rs => rs.outline.map(r =>
+      L.polygon(ll(r), { pane: 'lakes', color: tok('--storage-edge'), weight: 0.8,
+        fillColor: tok('--storage'), fillOpacity: 0.85 }).bindPopup(() => reservoirPopup(rs)))));
+    [...d.reservoirs].sort((a, b) => b.capacity_maf - a.capacity_maf).forEach(rs => {
+      const c = L.circleMarker([rs.lat, rs.lon], {
+        pane: 'storage', radius: storageRadiusPx(rs.capacity_maf), color: tok('--storage-edge'),
+        weight: 1.2, fillColor: tok('--storage'), fillOpacity: 0.6 });
+      c.bindTooltip(esc(rs.name), { direction: 'top', offset: [0, -4] });
+      c.bindPopup(() => reservoirPopup(rs));
+      c.addTo(map);
+    });
+    const toggleLakes = () => map.getZoom() >= 8 ? lakes.addTo(map) : lakes.remove();
+
+    // Tree-ring sites
+    const siteMarkers = {};
+    d.sites.forEach(s => {
+      const m = L.marker([s.lat, s.lon], {
+        pane: 'sites', title: `${s.num}. ${s.name}`, keyboard: true,
+        icon: L.divIcon({ className: 'site-icon', html: treeSvg(16, tok('--tree')) + `<b>${s.num}</b>`,
+                          iconSize: [30, 20], iconAnchor: [8, 18], popupAnchor: [0, -16] }) });
+      m.bindPopup(() => sitePopup(s), { maxWidth: 310 });
+      siteMarkers[s.id] = m.addTo(map);
+    });
+
+    // Reclamation natural-flow gauges (USGS streamgage symbol). Many sit just below a dam,
+    // so a gauge that would overlap a reservoir circle or another gauge at the current zoom
+    // is moved to the nearest clear spot, with a leader line back to its true position.
+    const gaugeItems = d.gauges.map(g => {
+      const marker = L.marker([g.lat, g.lon], {
+        pane: 'gauges', title: g.name, keyboard: true,
+        icon: L.divIcon({ className: '', html: '<div class="gauge-icon"></div>',
+                          iconSize: [13, 13], iconAnchor: [6.5, 6.5], popupAnchor: [0, -6] }) });
+      marker.bindTooltip(esc(g.name), { direction: 'top', offset: [0, -6] });
+      marker.bindPopup(() => gaugePopup(g), { maxWidth: 320 });
+      const leader = L.polyline([[g.lat, g.lon], [g.lat, g.lon]], {
+        pane: 'gauges', color: tok('--gauge'), weight: 1.2, interactive: false });
+      const anchor = L.circleMarker([g.lat, g.lon], {
+        pane: 'gauges', radius: 2.2, stroke: false, fillColor: tok('--gauge'), fillOpacity: 1,
+        interactive: false });
+      return { g, marker: marker.addTo(map), leader, anchor };
+    });
+    const GAUGE_R = 7;                                   // icon radius plus a margin (px)
+    function placeGauges() {
+      const circles = d.reservoirs.map(rs => ({
+        p: map.latLngToLayerPoint([rs.lat, rs.lon]), r: storageRadiusPx(rs.capacity_maf) }));
+      const placed = [];
+      const clear = p => circles.every(c => p.distanceTo(c.p) >= c.r + GAUGE_R + 2)
+        && placed.every(q => p.distanceTo(q) >= 2 * GAUGE_R + 1);
+      gaugeItems.forEach(it => {
+        const p0 = map.latLngToLayerPoint([it.g.lat, it.g.lon]);
+        let p = p0;
+        if (!clear(p0)) {
+          // Prefer pointing away from the circle being avoided, then sweep around it
+          const near = circles.reduce((a, c) => p0.distanceTo(c.p) - c.r < p0.distanceTo(a.p) - a.r ? c : a);
+          const away = p0.distanceTo(near.p) > 0.5 ? Math.atan2(p0.y - near.p.y, p0.x - near.p.x) : -Math.PI / 4;
+          search: for (let dist = 14; dist <= 90; dist += 6) {
+            for (let k = 0; k < 12; k++) {
+              const a = away + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * Math.PI / 6;
+              const c = p0.add(L.point(Math.cos(a) * dist, Math.sin(a) * dist));
+              if (clear(c)) { p = c; break search; }
+            }
+          }
+        }
+        placed.push(p);
+        const at = map.layerPointToLatLng(p);
+        it.marker.setLatLng(at);
+        if (p !== p0) {
+          it.leader.setLatLngs([[it.g.lat, it.g.lon], at]).addTo(map);
+          it.anchor.addTo(map);
+        } else {
+          it.leader.remove();
+          it.anchor.remove();
+        }
+      });
+    }
+
+    map.fitBounds(L.latLngBounds(ll(d.basins['Lees Ferry'])), { padding: [12, 12] });
+    z0 = map.getZoom();
+    map.on('zoomend', () => { restyleRivers(); toggleLakes(); placeGauges(); });
+    toggleLakes();
+    placeGauges();
+
+    // --- Popups ---------------------------------------------------------------------
+    function gaugePopup(g) {
+      const v = g.annual_maf, n = v.length, years = v.map((_, i) => g.first_wy + i);
+      const W = 270, H = 74, top = 10, bottom = 14, left = 2;
+      const vmax = Math.max(...v);
+      const x = i => left + i / (n - 1) * (W - left - 2);
+      const y = q => top + (1 - q / vmax) * (H - top - bottom);
+      const pts = v.map((q, i) => `${x(i).toFixed(1)},${y(q).toFixed(1)}`).join(' ');
+      const iMax = v.indexOf(vmax), iMin = v.indexOf(Math.min(...v));
+      const f2 = q => q.toFixed(2);
+      const spark = `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"
+          role="img" aria-label="Annual natural flow, water years ${years[0]} to ${years[n - 1]}">
+        <line x1="${left}" x2="${W - 2}" y1="${y(g.mean_maf)}" y2="${y(g.mean_maf)}" stroke="${tok('--muted')}" stroke-dasharray="3 3" stroke-width="1"/>
+        <polyline points="${pts}" fill="none" stroke="${tok('--river')}" stroke-width="1.4" stroke-linejoin="round"/>
+        <circle cx="${x(iMax)}" cy="${y(vmax)}" r="2.6" fill="${tok('--river-hi')}"/>
+        <circle cx="${x(iMin)}" cy="${y(v[iMin])}" r="2.6" fill="${tok('--river-hi')}"/>
+        <text x="${left}" y="${H - 2}">${years[0]}</text>
+        <text x="${W - 2}" y="${H - 2}" text-anchor="end">${years[n - 1]}</text>
+        <text x="${W - 2}" y="${Math.max(9, y(g.mean_maf) - 3)}" text-anchor="end">mean</text>
+      </svg>`;
+      const pct = g.pct_total < 1 ? '<1' : g.pct_total.toFixed(0);
+      const usgs = g.usgs
+        ? `<a href="https://waterdata.usgs.gov/monitoring-location/USGS-${g.id}/" target="_blank" rel="noopener">USGS ${g.id}</a>`
+        : `<span class="num">${g.id}</span>`;
+      return `<div class="pop"><div class="pop-kind">Natural-flow gauge</div>
+        <div class="pop-title">${esc(g.name)}</div>
+        <dl><dt>Site</dt><dd>${usgs}</dd>
+        <dt>Mean natural flow</dt><dd><span class="num">${f2(g.mean_maf)}</span> MAF/yr</dd>
+        <dt>Share of Total</dt><dd><span class="num">${pct}%</span> of flow at Lees Ferry</dd>
+        <dt>Wettest</dt><dd>WY <span class="num">${years[iMax]}</span>, <span class="num">${f2(vmax)}</span> MAF</dd>
+        <dt>Driest</dt><dd>WY <span class="num">${years[iMin]}</span>, <span class="num">${f2(v[iMin])}</span> MAF</dd></dl>
+        ${spark}
+        <p class="flag">Reclamation water-year natural flow, WY ${years[0]}–${years[n - 1]}${g.note ? '. ' + esc(g.note) : '.'}</p></div>`;
+    }
+    function reservoirPopup(rs) {
+      return `<div class="pop"><div class="pop-kind">Reservoir${rs.crsp ? '<span class="badge">CRSP unit</span>' : ''}</div>
+        <div class="pop-title">${esc(rs.name)}</div>
+        <dl><dt>Storage capacity</dt><dd>about <span class="num">${rs.capacity_maf}</span> MAF</dd>
+        ${rs.river ? `<dt>River</dt><dd>${esc(rs.river)}</dd>` : ''}
+        <dt>Dam</dt><dd class="num">${rs.lat.toFixed(3)}°N, ${Math.abs(rs.lon).toFixed(3)}°W</dd></dl>
+        <p class="flag">Capacity is a rounded full-pool total entered by hand from published figures; verify before citing.</p></div>`;
+    }
+    function sitePopup(s) {
+      const meta = `<dl>
+        ${s.species ? `<dt>Species</dt><dd>${esc(s.species[0])}${s.species[1] ? ` (<i>${esc(s.species[1])}</i>)` : ''}</dd>` : ''}
+        ${s.elev_m ? `<dt>Elevation</dt><dd><span class="num">${s.elev_m.toLocaleString()}</span> m</dd>` : ''}
+        <dt>Chronology</dt><dd>${s.first_year != null ? `<span class="num">${fmtYear(s.first_year)} to ${s.last_year}</span>` : 'Span not recorded'}</dd>
+        <dt>Location</dt><dd class="num">${s.lat.toFixed(3)}°N, ${Math.abs(s.lon).toFixed(3)}°W</dd>
+        ${s.r_total != null ? `<dt>r with Total</dt><dd><span class="num">${fmtR(s.r_total)}</span> (Lees Ferry)</dd>` : ''}
+        </dl>`;
+      let corr = '<p class="flag">Not in the 13-chronology set, so no flow correlations yet.</p>';
+      if (s.r_sub) {
+        const maxR = Math.max(...Object.values(s.r_sub));
+        corr = `<div class="bars" role="list" aria-label="Correlation with subbasin natural flow">` +
+          d.corr.subbasins.map(b => {
+            const r = s.r_sub[b];
+            const cls = b === s.best ? 'best' : (s.near_best.includes(b) ? 'near' : '');
+            return `<div class="bar ${cls}" role="listitem"><span>${esc(b)}</span>
+              <span class="track"><span class="fill" style="width:${Math.max(0, r / 0.8) * 100}%"></span></span>
+              <span class="num">${fmtR(r)}</span></div>`;
+          }).join('') + `</div>
+          <p class="flag">r with subbasin water-year natural flow, WY ${d.corr.years[0]}–${d.corr.years[1]} (n = ${d.corr.n}).
+          Dark: highest; light: within ${d.corr.tie_tol.toFixed(2)} of it.</p>`;
+      }
+      return `<div class="pop"><div class="pop-kind">Tree-ring site ${s.num} · ${esc(s.code)}</div>
+        <div class="pop-title">${esc(s.name)}</div>${meta}${corr}</div>`;
+    }
+
+    // --- Side panel -----------------------------------------------------------------
+    const sw = (w, h, inner) => `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">${inner}</svg>`;
+    document.getElementById('legend-flow').innerHTML = [1, 5, 15].map(q =>
+      `<div class="legend-row">${sw(56, 14, `<line x1="2" y1="7" x2="54" y2="7" stroke="${tok('--river')}" stroke-width="${flowLw(q) * PT}"/>`)}
+       <span><span class="num">${q}</span> MAF/yr</span></div>`).join('');
+    document.getElementById('legend-storage').innerHTML = [1, 5, 20].map(q => {
+      const r = storageRadiusPx(q);
+      return `<div class="legend-row">${sw(56, 2 * r + 4, `<circle cx="28" cy="${r + 2}" r="${r}" fill="${tok('--storage')}" fill-opacity="0.6" stroke="${tok('--storage-edge')}" stroke-width="1.2"/>`)}
+        <span><span class="num">${q}</span> MAF</span></div>`;
+    }).join('');
+    document.getElementById('legend-symbols').innerHTML = `
+      <div class="legend-row">${sw(56, 12, `<line x1="2" y1="6" x2="54" y2="6" stroke="${tok('--fg')}" stroke-width="1.8"/>`)}<span>Basin above Lees Ferry</span></div>
+      <div class="legend-row">${sw(56, 12, `<line x1="2" y1="6" x2="54" y2="6" stroke="${tok('--fg')}" stroke-width="1" stroke-dasharray="5 3"/>`)}<span>Green / Colorado / San Juan divide</span></div>
+      <div class="legend-row"><span style="justify-self:center">${treeSvg(16, tok('--tree'))}</span><span>Tree-ring site (numbered north to south)</span></div>
+      <div class="legend-row"><span style="justify-self:center"><div class="gauge-icon"></div></span><span>Reclamation natural-flow gauge</span></div>`;
+    document.getElementById('legend-ramp').style.background = `linear-gradient(90deg, ${d.elevation.colors.join(', ')})`;
+
+    const rows = document.getElementById('site-rows');
+    d.sites.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.tabIndex = 0;
+      tr.setAttribute('aria-label', `Show ${s.name} on the map`);
+      let best = '—';
+      if (s.r_sub) {
+        const ties = s.near_best.filter(b => b !== s.best && d.corr.rarely_best.includes(b));
+        best = `${esc(s.best)} <span class="num">(${fmtR(s.r_sub[s.best])})</span>` +
+          (ties.length ? `<span class="tie" style="display:block;color:var(--muted);font-size:0.8rem">≈ ${ties.map(t => esc(short[t] || t)).join(', ')}</span>` : '');
+      }
+      tr.innerHTML = `<td class="num">${s.num}</td><td>${esc(s.name)}</td>
+        <td class="num">${s.r_sub ? fmtYear(s.first_year) : '—'}</td><td class="num">${fmtR(s.r_total)}</td><td>${best}</td>`;
+      const go = () => {
+        map.flyTo([s.lat, s.lon], Math.max(map.getZoom(), 8), { duration: 0.8 });
+        map.once('moveend', () => siteMarkers[s.id].openPopup());
+      };
+      tr.addEventListener('click', go);
+      tr.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+      rows.appendChild(tr);
+    });
+
+    document.getElementById('notes').innerHTML = `
+      <p><strong>r</strong>: Pearson correlation of the chronology with water-year natural flow,
+        WY ${d.corr.years[0]}–${d.corr.years[1]} (n = ${d.corr.n}). Total is the Colorado River at Lees Ferry
+        (mean <span class="num">${d.lees_ferry.mean_maf}</span> MAF/yr, WY 1906–2020).</p>
+      <p><strong>Best subbasin</strong>: highest r among the seven source-region gauges. ≈ lists near ties
+        (within ${d.corr.tie_tol.toFixed(2)}) for subbasins that are the best match for at most one site:
+        ${d.corr.rarely_best.join(', ')}.</p>
+      <p><strong>First year</strong>: earliest year of the chronology (negative = BCE). — = not in the
+        13-chronology set.</p>
+      <p>Sources: Reclamation natural flows (Nov 2022 release); NHDPlus V2 flowlines and NHD waterbodies;
+        USGS NLDI drainage basins; USGS 3DEP elevation; site metadata from MetaSitesA.csv.</p>`;
+  }
+})();
+</script>
