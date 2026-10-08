@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Upper Colorado Study Area</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -758,16 +759,20 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
 .site-icon { display: flex; align-items: flex-end; gap: 1px; }
 .site-icon svg { filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff); }
 .site-icon b {
-  font: 600 11px/1 var(--font-display); color: #1f3d20;
+  font: 600 12.5px/1 var(--font-display); color: #1f3d20;
   text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff;
 }
 .map-label {
   font-family: var(--font-display); white-space: nowrap; pointer-events: none;
   text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff;
 }
-.map-label.basin { font-weight: 600; font-size: 13px; color: #2b2f2c; letter-spacing: 0.06em; }
+.map-label.basin {
+  font-weight: 600; font-size: 30px; letter-spacing: 0.18em; color: #2b2f2c; opacity: 0.28;
+  text-shadow: none; position: absolute; transform: translate(-50%, -50%);
+}
 .map-label.state { font-weight: 600; font-size: 17px; color: #a8aca9; letter-spacing: 0.1em; }
 .map-label.river { font-family: var(--font-body); font-style: italic; font-size: 11.5px; color: #1d4f80; }
+.map-label.river.centred { position: absolute; transform: translate(-50%, -50%); }
 .leaflet-container { font-family: var(--font-body); background: var(--map-bg); }
 .leaflet-container :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
@@ -799,10 +804,10 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
 .bar .num { text-align: right; }
 .load-error { padding: 24px; color: var(--fg); }
 .gauge-icon {
-  width: 13px; height: 13px; box-sizing: border-box; border-radius: 50%;
-  background: #fff; border: 2.5px solid var(--gauge); display: grid; place-items: center;
+  width: 11px; height: 11px; box-sizing: border-box; border-radius: 50%;
+  background: #fff; border: 2px solid var(--gauge); display: grid; place-items: center;
 }
-.gauge-icon::after { content: ""; width: 3px; height: 3px; border-radius: 50%; background: var(--gauge); }
+.gauge-icon::after { content: ""; width: 2.5px; height: 2.5px; border-radius: 50%; background: var(--gauge); }
 .spark { display: block; margin-top: 10px; overflow: visible; }
 .spark text { font-family: var(--font-data); font-size: 9.5px; fill: var(--muted); }
 .pop a { color: var(--river-hi); }
@@ -875,7 +880,8 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
   fetch('map_data.json').then(r => {
     if (!r.ok) throw new Error(r.status);
     return r.json();
-  }).then(build).catch(() => {
+  }).then(build).catch(err => {
+    console.error('Map failed to load:', err);
     document.getElementById('map').innerHTML =
       '<p class="load-error">The map data could not be loaded. Reload the page to try again.</p>';
   });
@@ -887,28 +893,33 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
     const map = L.map('map', { zoomSnap: 0.25, minZoom: 5, maxZoom: 11, attributionControl: true });
     map.attributionControl.setPrefix(false);
     map.attributionControl.addAttribution('USGS 3DEP, NHDPlus V2, NLDI; Reclamation natural flows');
-    [['terrain', 200], ['basins', 410], ['rivers', 420], ['lakes', 430], ['storage', 440], ['labels', 450], ['gauges', 590], ['sites', 600]]
+    [['terrain', 200], ['basinnames', 405], ['basins', 410], ['rivers', 420], ['lakes', 430], ['storage', 440], ['labels', 450], ['gauges', 590], ['sites', 600]]
       .forEach(([n, z]) => { map.createPane(n).style.zIndex = z; });
-    map.getPane('labels').style.pointerEvents = 'none';
+    ['labels', 'basinnames'].forEach(n => { map.getPane(n).style.pointerEvents = 'none'; });
 
     L.imageOverlay('terrain.jpg', d.bounds, { pane: 'terrain', interactive: false }).addTo(map);
     map.setMaxBounds(L.latLngBounds(d.bounds).pad(0.15));
     const ll = c => c.map(([x, y]) => [y, x]);
+    // Set the view before adding layers: Leaflet only builds a layer's SVG once the map has
+    // a view, and the curved river names attach their text to those paths
+    map.fitBounds(L.latLngBounds(ll(d.basins['Lees Ferry'])), { padding: [12, 12] });
+    const z0 = map.getZoom();
+    map.setMinZoom(z0);                       // the opening view is as far out as the map goes
 
     // State lines and labels
     Object.values(d.states).forEach(c =>
       L.polyline(ll(c), { pane: 'basins', color: '#000', weight: 0.8, opacity: 0.25, interactive: false }).addTo(map));
-    [['UT', 39.5, -112.0], ['CO', 39.0, -105.6], ['WY', 42.3, -107.0], ['NM', 35.1, -107.6], ['AZ', 35.6, -111.6]]
-      .forEach(([t, lat, lon]) => L.marker([lat, lon], { pane: 'labels', interactive: false,
-        icon: L.divIcon({ className: 'map-label state', html: t, iconSize: null }) }).addTo(map));
+    d.state_labels.forEach(lb => L.marker([lb.lat, lb.lon], { pane: 'labels', interactive: false,
+      icon: L.divIcon({ className: 'map-label state', html: esc(lb.text), iconSize: null }) }).addTo(map));
 
     // Basin outline and the Green / Colorado / San Juan divides
     ['Green', 'Colorado', 'San Juan'].forEach(n =>
       L.polyline(ll(d.basins[n]), { pane: 'basins', color: '#3a3f3c', weight: 1, dashArray: '5 3', interactive: false }).addTo(map));
     L.polyline(ll(d.basins['Lees Ferry']), { pane: 'basins', color: '#1d211f', weight: 1.8, interactive: false }).addTo(map);
-    [['GREEN', 42.3, -109.0], ['COLORADO', 38.95, -106.6], ['SAN JUAN', 36.15, -107.75]]
-      .forEach(([t, lat, lon]) => L.marker([lat, lon], { pane: 'labels', interactive: false,
-        icon: L.divIcon({ className: 'map-label basin', html: t, iconSize: null }) }).addTo(map));
+    // Basin names: large and faint, beneath everything else; centred in each basin
+    d.basin_labels.forEach(lb => L.marker([lb.lat, lb.lon], { pane: 'basinnames', interactive: false,
+      icon: L.divIcon({ className: '', html: `<span class="map-label basin">${esc(lb.text)}</span>`,
+                        iconSize: [0, 0] }) }).addTo(map));
 
     // Rivers: one polyline per reach of constant width; hovering names the river (a canvas
     // hit tolerance makes the thin headwater lines easy to find)
@@ -922,18 +933,40 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
       line.on('mouseout', () => line.setStyle({ color: tok('--river') }));
       return line.addTo(map);
     });
-    // Widen lines a little as the map zooms in so they keep their visual weight
-    let z0;
-    const restyleRivers = () => {
-      const k = Math.pow(2, (map.getZoom() - z0) * 0.45);
-      riverLayers.forEach((line, i) => line.setStyle({ weight: Math.max(0.9, d.rivers[i].lw * PT * k) }));
-    };
+    // River widths stay fixed at every zoom so they always match the legend
 
-    [['Green R.', 41.5, -110.3], ['Yampa R.', 40.7, -107.5], ['Colorado R.', 39.5, -107.0],
-     ['Gunnison R.', 38.42, -107.2], ['San Juan R.', 36.5, -108.5], ['Dolores R.', 38.2, -108.8],
-     ['White R.', 40.0, -109.0], ['Duchesne R.', 40.4, -110.6], ['Lake Powell', 37.35, -111.3]]
-      .forEach(([t, lat, lon]) => L.marker([lat, lon], { pane: 'labels', interactive: false,
-        icon: L.divIcon({ className: 'map-label river', html: t, iconSize: null }) }).addTo(map));
+    // River names: placed by export_web_map.py along each river near its confluence,
+    // rotated to the river's direction (Lake Powell's label is a plain fixed label)
+    // River names: horizontal, placed by export_web_map.py near each river's confluence,
+    // each with a thin leader line to its river (Lake Powell's points into the reservoir)
+    const riverLabelShapes = [];
+    d.river_labels.forEach(lb => {
+      if (lb.fixed) {
+        L.marker([lb.lat, lb.lon], { pane: 'labels', interactive: false,
+          icon: L.divIcon({ className: 'map-label river', html: esc(lb.text), iconSize: null }) }).addTo(map);
+        return;
+      }
+      L.marker([lb.lat, lb.lon], { pane: 'labels', interactive: false,
+        icon: L.divIcon({ className: '', iconSize: [0, 0],
+          html: `<span class="map-label river centred">${esc(lb.text)}</span>` }) }).addTo(map);
+      if (lb.leader) {
+        const pts = lb.leader.map(([x, y]) => [y, x]);
+        L.polyline(pts, { pane: 'labels', color: '#1d4f80', weight: 1, opacity: 0.85,
+                          interactive: false }).addTo(map);
+      }
+      riverLabelShapes.push(lb);
+    });
+    // Screen positions of the names and leaders at the current zoom (gauges keep off them)
+    function riverLabelObstacles() {
+      return riverLabelShapes.map(lb => ({
+        c: map.latLngToLayerPoint([lb.lat, lb.lon]), hw: lb.hw, hh: lb.hh,
+        leader: lb.leader ? lb.leader.map(([x, y]) => map.latLngToLayerPoint([y, x])) : null }));
+    }
+    const segDist = (p, a, b) => {
+      const ab = b.subtract(a), t = Math.max(0, Math.min(1,
+        ((p.x - a.x) * ab.x + (p.y - a.y) * ab.y) / ((ab.x * ab.x + ab.y * ab.y) || 1)));
+      return p.distanceTo(a.add(ab.multiplyBy(t)));
+    };
 
     // Reservoirs: storage circles at the dams; lake outlines appear once zoomed in
     const lakes = L.layerGroup(d.reservoirs.flatMap(rs => rs.outline.map(r =>
@@ -954,8 +987,8 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
     d.sites.forEach(s => {
       const m = L.marker([s.lat, s.lon], {
         pane: 'sites', title: `${s.num}. ${s.name}`, keyboard: true,
-        icon: L.divIcon({ className: 'site-icon', html: treeSvg(16, tok('--tree')) + `<b>${s.num}</b>`,
-                          iconSize: [30, 20], iconAnchor: [8, 18], popupAnchor: [0, -16] }) });
+        icon: L.divIcon({ className: 'site-icon', html: treeSvg(20, tok('--tree')) + `<b>${s.num}</b>`,
+                          iconSize: [36, 24], iconAnchor: [10, 22], popupAnchor: [0, -20] }) });
       m.bindPopup(() => sitePopup(s), { maxWidth: 310 });
       siteMarkers[s.id] = m.addTo(map);
     });
@@ -967,7 +1000,7 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
       const marker = L.marker([g.lat, g.lon], {
         pane: 'gauges', title: g.name, keyboard: true,
         icon: L.divIcon({ className: '', html: '<div class="gauge-icon"></div>',
-                          iconSize: [13, 13], iconAnchor: [6.5, 6.5], popupAnchor: [0, -6] }) });
+                          iconSize: [11, 11], iconAnchor: [5.5, 5.5], popupAnchor: [0, -5] }) });
       marker.bindTooltip(esc(g.name), { direction: 'top', offset: [0, -6] });
       marker.bindPopup(() => gaugePopup(g), { maxWidth: 320 });
       const leader = L.polyline([[g.lat, g.lon], [g.lat, g.lon]], {
@@ -977,12 +1010,14 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
         interactive: false });
       return { g, marker: marker.addTo(map), leader, anchor };
     });
-    const GAUGE_R = 7;                                   // icon radius plus a margin (px)
+    const GAUGE_R = 6;                                   // icon radius plus a margin (px)
     function placeGauges() {
       const circles = d.reservoirs.map(rs => ({
         p: map.latLngToLayerPoint([rs.lat, rs.lon]), r: storageRadiusPx(rs.capacity_maf) }));
-      const placed = [];
+      const placed = [], labels = riverLabelObstacles();
       const clear = p => circles.every(c => p.distanceTo(c.p) >= c.r + GAUGE_R + 2)
+        && labels.every(o => (Math.abs(p.x - o.c.x) > o.hw + GAUGE_R || Math.abs(p.y - o.c.y) > o.hh + GAUGE_R)
+          && (!o.leader || segDist(p, o.leader[0], o.leader[1]) >= GAUGE_R + 1))
         && placed.every(q => p.distanceTo(q) >= 2 * GAUGE_R + 1);
       gaugeItems.forEach(it => {
         const p0 = map.latLngToLayerPoint([it.g.lat, it.g.lon]);
@@ -1012,9 +1047,7 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
       });
     }
 
-    map.fitBounds(L.latLngBounds(ll(d.basins['Lees Ferry'])), { padding: [12, 12] });
-    z0 = map.getZoom();
-    map.on('zoomend', () => { restyleRivers(); toggleLakes(); placeGauges(); });
+    map.on('zoomend', () => { toggleLakes(); placeGauges(); });
     toggleLakes();
     placeGauges();
 
@@ -1099,7 +1132,7 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
     document.getElementById('legend-symbols').innerHTML = `
       <div class="legend-row">${sw(56, 12, `<line x1="2" y1="6" x2="54" y2="6" stroke="${tok('--fg')}" stroke-width="1.8"/>`)}<span>Basin above Lees Ferry</span></div>
       <div class="legend-row">${sw(56, 12, `<line x1="2" y1="6" x2="54" y2="6" stroke="${tok('--fg')}" stroke-width="1" stroke-dasharray="5 3"/>`)}<span>Green / Colorado / San Juan divide</span></div>
-      <div class="legend-row"><span style="justify-self:center">${treeSvg(16, tok('--tree'))}</span><span>Tree-ring site (numbered north to south)</span></div>
+      <div class="legend-row"><span style="justify-self:center">${treeSvg(20, tok('--tree'))}</span><span>Tree-ring site (numbered north to south)</span></div>
       <div class="legend-row"><span style="justify-self:center"><div class="gauge-icon"></div></span><span>Reclamation natural-flow gauge</span></div>`;
     document.getElementById('legend-ramp').style.background = `linear-gradient(90deg, ${d.elevation.colors.join(', ')})`;
 
