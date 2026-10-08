@@ -730,7 +730,21 @@ h2 {
   font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted);
   font-weight: 500; padding-bottom: 6px; border-bottom: 1px solid var(--rule); margin-bottom: 10px;
 }
-.lede { margin: 6px 0 0; color: var(--muted); max-width: 60ch; }
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 60ch; position: relative; }
+/* Defined terms: bold with a dotted underline; the definition appears in a box under the
+   paragraph on hover, keyboard focus or tap */
+.term {
+  font-weight: 600; color: var(--fg); cursor: help;
+  text-decoration: underline dotted; text-underline-offset: 3px;
+}
+.term:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+.tip {
+  display: none; position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 10;
+  padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px;
+  background: var(--panel); color: var(--fg); font-size: 0.86rem; line-height: 1.45;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.18);
+}
+.term:hover + .tip, .term:focus + .tip { display: block; }
 .num { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size: 0.86em; }
 
 /* Legend */
@@ -819,8 +833,21 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
   <aside class="panel">
     <header>
       <h1>Upper Colorado River Basin above Lees Ferry</h1>
-      <p class="lede">Rivers are drawn in proportion to mean annual natural flow. Select a
-        natural-flow gauge, reservoir or tree-ring site for details.</p>
+      <p class="lede">Rivers are drawn in proportion to mean annual
+        <span class="term" tabindex="0" aria-describedby="tip-natural-flow">natural flow</span><span
+          class="tip" role="tooltip" id="tip-natural-flow">The flow a river would carry without
+          upstream reservoirs, diversions and other water use. Reclamation estimates it by adding
+          those effects back to the measured flow.</span>
+        for <span class="term" tabindex="0" aria-describedby="tip-water-year">water years</span><span
+          class="tip" role="tooltip" id="tip-water-year">A water year runs from October 1 to
+          September 30 and is named for the year in which it ends: water year (WY) 2020 ran from
+          October 1, 2019 to September 30, 2020.</span>
+        1906–2020. Select a natural-flow gauge, reservoir or
+        <span class="term" tabindex="0" aria-describedby="tip-tree-ring">tree-ring site</span><span
+          class="tip" role="tooltip" id="tip-tree-ring">A stand of long-lived trees whose annual
+          rings record moisture conditions. These sites are being used in an NSF-funded study to
+          reconstruct Colorado River flow at Lees Ferry over the past 2,000 years.</span>
+        for details.</p>
     </header>
 
     <section>
