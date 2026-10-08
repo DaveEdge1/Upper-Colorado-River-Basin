@@ -1161,7 +1161,9 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
       <div class="legend-row">${sw(56, 12, `<line x1="2" y1="6" x2="54" y2="6" stroke="${tok('--fg')}" stroke-width="1" stroke-dasharray="5 3"/>`)}<span>Green / Colorado / San Juan divide</span></div>
       <div class="legend-row"><span style="justify-self:center">${treeSvg(20, tok('--tree'))}</span><span>Tree-ring site (numbered north to south)</span></div>
       <div class="legend-row"><span style="justify-self:center"><div class="gauge-icon"></div></span><span>Reclamation natural-flow gauge</span></div>`;
-    document.getElementById('legend-ramp').style.background = `linear-gradient(90deg, ${d.elevation.colors.join(', ')})`;
+    const e = d.elevation;   // gradient stops at their elevations along the 1000-4000 m bar
+    document.getElementById('legend-ramp').style.background = 'linear-gradient(90deg, ' +
+      e.stops.map(([v, c]) => `${c} ${((v - e.vmin) / (e.vmax - e.vmin) * 100).toFixed(1)}%`).join(', ') + ')';
 
     const rows = document.getElementById('site-rows');
     d.sites.forEach(s => {
