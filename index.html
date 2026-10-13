@@ -771,6 +771,7 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
 
 /* Map symbols */
 .site-icon { display: flex; align-items: flex-end; gap: 1px; }
+.site-icon.left { flex-direction: row-reverse; }
 .site-icon svg { filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff); }
 .site-icon b {
   font: 600 12.5px/1 var(--font-display); color: #1f3d20;
@@ -1014,8 +1015,10 @@ td.tie { color: var(--muted); font-size: 0.8rem; display: block; padding: 0; bor
     d.sites.forEach(s => {
       const m = L.marker([s.lat, s.lon], {
         pane: 'sites', title: `${s.num}. ${s.name}`, keyboard: true,
-        icon: L.divIcon({ className: 'site-icon', html: treeSvg(20, tok('--tree')) + `<b>${s.num}</b>`,
-                          iconSize: [36, 24], iconAnchor: [10, 22], popupAnchor: [0, -20] }) });
+        icon: L.divIcon({ className: s.label_left ? 'site-icon left' : 'site-icon',
+                          html: treeSvg(20, tok('--tree')) + `<b>${s.num}</b>`, iconSize: [36, 24],
+                          iconAnchor: [s.label_left ? 26 : 10, 22],
+                          popupAnchor: [0, -20] }) });
       m.bindPopup(() => sitePopup(s), { maxWidth: 310 });
       siteMarkers[s.id] = m.addTo(map);
     });
